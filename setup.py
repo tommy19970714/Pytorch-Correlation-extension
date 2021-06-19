@@ -2,7 +2,7 @@ from setuptools import setup
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CppExtension
 from os.path import join
 
-CPU_ONLY = False
+CPU_ONLY = True
 project_root = 'Correlation_Module'
 
 source_files = ['correlation.cpp', 'correlation_sampler.cpp']
