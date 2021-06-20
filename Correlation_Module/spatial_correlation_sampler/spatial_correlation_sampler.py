@@ -70,6 +70,10 @@ class SpatialCorrelationSamplerFunction(Function):
                                      dH, dW)
 
         return output
+      
+    @staticmethod
+    def symbolic(g, input1, input2, input3, input4, input5, input6, input7, input8):
+        return g.op('SpatialCorrelationSamplerFunction', input1, input2, input3, input4, input5, input6, input7, input8)
 
     @staticmethod
     @once_differentiable
