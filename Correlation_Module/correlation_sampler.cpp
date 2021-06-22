@@ -2,29 +2,30 @@
 #include <c10/cuda/CUDAGuard.h>
 #include <vector>
 #include <iostream>
+#include <torch/script.h>
 
 // declarations
 
 torch::Tensor correlation_cpp_forward(
     torch::Tensor input1,
     torch::Tensor input2,
-    int kH, int kW,
-    int patchH, int patchW,
-    int padH, int padW,
-    int dilationH, int dilationW,
-    int dilation_patchH, int dilation_patchW,
-    int dH, int dW);
+    int64_t kH, int64_t kW,
+    int64_t patchH, int64_t patchW,
+    int64_t padH, int64_t padW,
+    int64_t dilationH, int64_t dilationW,
+    int64_t dilation_patchH, int64_t dilation_patchW,
+    int64_t dH, int64_t dW);
 
 std::vector<torch::Tensor> correlation_cpp_backward(
     torch::Tensor grad_output,
     torch::Tensor input1,
     torch::Tensor input2,
-    int kH, int kW,
-    int patchH, int patchW,
-    int padH, int padW,
-    int dilationH, int dilationW,
-    int dilation_patchH, int dilation_patchW,
-    int dH, int dW);
+    int64_t kH, int64_t kW,
+    int64_t patchH, int64_t patchW,
+    int64_t padH, int64_t padW,
+    int64_t dilationH, int64_t dilationW,
+    int64_t dilation_patchH, int64_t dilation_patchW,
+    int64_t dH, int64_t dW);
 
 #ifdef USE_CUDA
 
