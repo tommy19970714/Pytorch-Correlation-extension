@@ -135,4 +135,9 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("backward", &correlation_cpp_backward, "Spatial Correlation Sampler backward");
 }
 
+TORCH_LIBRARY(my_ops, m) {
+  m.def("forward", correlation_cpp_forward);
+  m.def("backward", correlation_cpp_backward);
+}
+
 #endif
