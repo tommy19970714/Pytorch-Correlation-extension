@@ -10,21 +10,21 @@ static void correlate_patch(
     TensorAccessor<scalar_t,3> input1,
     TensorAccessor<scalar_t,3> input2,
     scalar_t *dst,
-    int kH, int kW,
-    int dilationH, int dilationW,
-    int u, int v,
-    int shiftU, int shiftV){
-  const int C = input1.size(0);
-  const int iH = input1.size(1);
-  const int iW = input1.size(2);
-  for (int c=0; c<C; ++c){
-    for (int i=0; i<kH; ++i){
-      int i1 = u + i * dilationH;
-      int i2 = i1 + shiftU;
+    int64_t kH, int64_t kW,
+    int64_t dilationH, int64_t dilationW,
+    int64_t u, int64_t v,
+    int64_t shiftU, int64_t shiftV){
+  const int64_t C = input1.size(0);
+  const int64_t iH = input1.size(1);
+  const int64_t iW = input1.size(2);
+  for (int64_t c=0; c<C; ++c){
+    for (int64_t i=0; i<kH; ++i){
+      int64_t i1 = u + i * dilationH;
+      int64_t i2 = i1 + shiftU;
       if WITHIN_BOUNDS(i1, i2, iH, iH){
-        for (int j=0; j<kW; ++j){
-          int j1 = v + j * dilationW;
-          int j2 = j1 + shiftV;
+        for (int64_t j=0; j<kW; ++j){
+          int64_t j1 = v + j * dilationW;
+          int64_t j2 = j1 + shiftV;
           if WITHIN_BOUNDS(j1, j2, iW, iW){
             scalar_t v1 = input1[c][i1][j1];
             scalar_t v2 = input2[c][i2][j2];
@@ -43,23 +43,23 @@ static void correlate_patch_grad(
     TensorAccessor<scalar_t,3> input2,
     TensorAccessor<scalar_t,3> gradInput2,
     scalar_t gradOutput,
-    int kH, int kW,
-    int dilationH, int dilationW,
-    int u, int v,
-    int shiftU, int shiftV){
+    int64_t kH, int64_t kW,
+    int64_t dilationH, int64_t dilationW,
+    int64_t u, int64_t v,
+    int64_t shiftU, int64_t shiftV){
 
-  const int C = input1.size(0);
-  const int iH = input1.size(1);
-  const int iW = input1.size(2);
+  const int64_t C = input1.size(0);
+  const int64_t iH = input1.size(1);
+  const int64_t iW = input1.size(2);
 
-  for (int c=0; c<C; ++c){
-    for (int i=0; i<kH; ++i){
-      int i1 = u + i * dilationH;
-      int i2 = i1 + shiftU;
+  for (int64_t c=0; c<C; ++c){
+    for (int64_t i=0; i<kH; ++i){
+      int64_t i1 = u + i * dilationH;
+      int64_t i2 = i1 + shiftU;
       if WITHIN_BOUNDS(i1, i2, iH, iH){
-        for (int j=0; j<kW; ++j){
-          int j1 = v + j * dilationW;
-          int j2 = j1 + shiftV;
+        for (int64_t j=0; j<kW; ++j){
+          int64_t j1 = v + j * dilationW;
+          int64_t j2 = j1 + shiftV;
           if WITHIN_BOUNDS(j1, j2, iW, iW){
             scalar_t v1 = input1[c][i1][j1];
             scalar_t v2 = input2[c][i2][j2];
@@ -75,26 +75,26 @@ static void correlate_patch_grad(
 torch::Tensor correlation_cpp_forward(
     torch::Tensor input1,
     torch::Tensor input2,
-    int kH, int kW,
-    int patchH, int patchW,
-    int padH, int padW,
-    int dilationH, int dilationW,
-    int dilation_patchH, int dilation_patchW,
-    int dH, int dW) {
+    int64_t kH, int64_t kW,
+    int64_t patchH, int64_t patchW,
+    int64_t padH, int64_t padW,
+    int64_t dilationH, int64_t dilationW,
+    int64_t dilation_patchH, int64_t dilation_patchW,
+    int64_t dH, int64_t dW) {
 
   const auto batch_size = input1.size(0);
   const auto iH = input1.size(2);
   const auto iW = input1.size(3);
-  const int patchRadH = (patchH - 1) / 2;
-  const int patchRadW = (patchW - 1) / 2;
-  const int dilatedKH = (kH - 1) * dilationH + 1;
-  const int dilatedKW = (kW - 1) * dilationW + 1;
+  const int64_t patchRadH = (patchH - 1) / 2;
+  const int64_t patchRadW = (patchW - 1) / 2;
+  const int64_t dilatedKH = (kH - 1) * dilationH + 1;
+  const int64_t dilatedKW = (kW - 1) * dilationW + 1;
 
   const auto oH = (iH + 2 * padH - dilatedKH) / dH + 1;
   const auto oW = (iW + 2 * padW - dilatedKW) / dW + 1;
   auto output = at::zeros({batch_size, patchH, patchW, oH, oW}, input1.options());
 
-  int n, ph, pw, h, w;
+  int64_t n, ph, pw, h, w;
   #pragma omp parallel for private(n, ph, pw, h, w) collapse(2)
     for (n = 0; n < batch_size; ++n) {
       for(ph = 0; ph < patchH; ++ph){
@@ -127,24 +127,24 @@ std::vector<torch::Tensor> correlation_cpp_backward(
     torch::Tensor input1,
     torch::Tensor input2,
     torch::Tensor gradOutput,
-    int kH, int kW,
-    int patchH, int patchW,
-    int padH, int padW,
-    int dilationH, int dilationW,
-    int dilation_patchH, int dilation_patchW,
-    int dH, int dW) {
+    int64_t kH, int64_t kW,
+    int64_t patchH, int64_t patchW,
+    int64_t padH, int64_t padW,
+    int64_t dilationH, int64_t dilationW,
+    int64_t dilation_patchH, int64_t dilation_patchW,
+    int64_t dH, int64_t dW) {
   
-  const int batch_size = input1.size(0);
-  const int patchRadH = (patchH - 1) / 2;
-  const int patchRadW = (patchW - 1) / 2;
-  const int oH = gradOutput.size(3);
-  const int oW = gradOutput.size(4);
+  const int64_t batch_size = input1.size(0);
+  const int64_t patchRadH = (patchH - 1) / 2;
+  const int64_t patchRadW = (patchW - 1) / 2;
+  const int64_t oH = gradOutput.size(3);
+  const int64_t oW = gradOutput.size(4);
   
   auto gradInput1 = torch::zeros_like(input1);
 
   auto gradInput2 = torch::zeros_like(input2);
 
-  int n, ph, pw, h, w;
+  int64_t n, ph, pw, h, w;
   #pragma omp parallel for private(n, ph, pw, h, w)
     for (n = 0; n < batch_size; ++n) {
       AT_DISPATCH_FLOATING_TYPES(input1.scalar_type(), "correlation_backward_cpp", ([&] {
