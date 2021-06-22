@@ -136,8 +136,8 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
 }
 
 TORCH_LIBRARY(my_ops, m) {
-  m.def("forward", correlation_cpp_forward);
-  m.def("backward", correlation_cpp_backward);
+  m.def("forward", &correlation_cpp_forward);
+  m.def("backward", &correlation_cpp_backward);
 }
 
 #endif
